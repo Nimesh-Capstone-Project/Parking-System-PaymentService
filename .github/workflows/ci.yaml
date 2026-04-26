@@ -1,0 +1,44 @@
+name: Payment Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Override release tag (default: commit SHA)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  ci:
+    uses: Nimesh-Capstone-Project/Parking-System/.github/workflows/reusable-ci.yaml@master
+    # ↑ Change @master to @main if your Parking-System repo default branch is main
+    with:
+      release_tag: ${{ github.event.inputs.release_tag || github.sha }}
+      image_name: payment-service
+      dockerfile_path: .
+      node_version: "20"
+      sonar_key: "Nimesh-Capstone-Project_Parking-System-PaymentService_10b6669e-cb26-40f7-a5b4-147f2afa63c2"
+      snyk_severity_threshold: "high"
+    secrets: inherit
+    # secrets: inherit forwards ALL org + repo secrets by their exact GitHub name.
+    # The reusable workflow declares them by the same names so they match correctly:
+    #   SONAR_TOKEN    → SONAR_TOKEN
+    #   SONAR_URL      → SONAR_URL      (not SONAR_HOST_URL — fixed in reusable-ci.yaml)
+    #   SNYK_TOKEN     → SNYK_TOKEN
+    #   DOCKER_USERNAME→ DOCKER_USERNAME
+    #   DOCKER_PASSWORD→ DOCKER_PASSWORD
+    #   TOKEN          → TOKEN
+    #   EMAIL_USERNAME → EMAIL_USERNAME
+    #   EMAIL_PASSWORD → EMAIL_PASSWORD
